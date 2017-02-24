@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # import socket
-import sys
-import pymysql.cursors
+# import sys
+# import pymysql.cursors
 
 from thrift.TMultiplexedProcessor import TMultiplexedProcessor
 from thrift.protocol import TBinaryProtocol
@@ -14,6 +14,9 @@ from first import upAddress
 from first import upName
 from first import upPwd
 # TMultiplexProtocol
+
+import sys
+import pymysql.cursors
 
 
 class db:
@@ -80,7 +83,7 @@ class upPwdHandler:
         return password
 # print(123)
 #transport = TSocket.TServerSocket(host='localhost', port=9090)
-transport = TSocket.TServerSocket("localhost", 9092)
+transport = TSocket.TServerSocket("localhost", 9090)
 tfactory = TTransport.TBufferedTransportFactory()
 pfactory = TBinaryProtocol.TBinaryProtocolFactory()
 

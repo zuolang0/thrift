@@ -18,7 +18,7 @@ from first import upPwd
 
 # TMultiplexProtocol
 
-transport = TSocket.TSocket('localhost', 9092)
+transport = TSocket.TSocket('localhost', 9090)
 transport = TTransport.TBufferedTransport(transport)
 protocol = TBinaryProtocol.TBinaryProtocol(transport)
 
@@ -33,7 +33,7 @@ upaddress_client = upAddress.Client(upaddress)  # user客户端
 uppwd_client = upPwd.Client(uppwd)  # user客户端
 
 
-print(upname_client.EditName(1, 'name123'))
+print(upname_client.EditName(1, 'nzl123'))
 print(upaddress_client.EditAddress(1, 'address'))
 print(uppwd_client.EditPassword(1, 'password'))
 
