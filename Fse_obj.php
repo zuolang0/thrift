@@ -13,34 +13,25 @@ if (php_sapi_name() == 'cli') {
   ini_set("display_errors", "stderr");
 }
 
-use Thrift\Protocol\TBinaryProtocol;
+#use Thrift\Protocol\TBinaryProtocol;
+use Thrift\Protocol\TCompactProtocol;
 use Thrift\Transport\TPhpStream;
 use Thrift\Transport\TBufferedTransport;
 use Thrift\TMultiplexedProcessor;
-use langzi\Member;
 
 class upNameHandler implements \langzi\upNameIf {
     public function EditName($id, $name){
-        $Member = new Member();
-        $Member->id = $id;
-        $Member->name = $name;
-        return $Member;
+        return $name.'123';
     }
 };
 class upAddressHandler implements \langzi\upAddressIf {
     public function EditAddress($id, $address){
-        $Member = new Member();
-        $Member->id = $id;
-        $Member->address = $address;
-        return $Member;
+        return $address.'123';
     }
 };
 class upPwdHandler implements \langzi\upPwdIf {
     public function EditPassword($id, $pwd){
-        $Member = new Member();
-        $Member->id = $id;
-        $Member->password = $pwd;
-        return $Member;
+        return $pwd.'123';
     }
 };
 header('Content-Type', 'application/x-thrift');
@@ -49,7 +40,7 @@ if (php_sapi_name() == 'cli') {
 }
 
 $transport = new TBufferedTransport(new TPhpStream(TPhpStream::MODE_R | TPhpStream::MODE_W));
-$protocol = new TBinaryProtocol($transport, true, true);
+$protocol = new TCompactProtocol($transport, true, true);
 $tMultiplexedProcessor = new TMultiplexedProcessor();
 
 $handler = new upNameHandler();

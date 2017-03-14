@@ -20,7 +20,7 @@ interface upNameIf {
   /**
    * @param int $id
    * @param string $name
-   * @return \langzi\Member
+   * @return string
    */
   public function EditName($id, $name);
 }
@@ -196,7 +196,7 @@ class upName_EditName_result {
   static $_TSPEC;
 
   /**
-   * @var \langzi\Member
+   * @var string
    */
   public $success = null;
 
@@ -205,8 +205,7 @@ class upName_EditName_result {
       self::$_TSPEC = array(
         0 => array(
           'var' => 'success',
-          'type' => TType::STRUCT,
-          'class' => '\langzi\Member',
+          'type' => TType::STRING,
           ),
         );
     }
@@ -237,9 +236,8 @@ class upName_EditName_result {
       switch ($fid)
       {
         case 0:
-          if ($ftype == TType::STRUCT) {
-            $this->success = new \langzi\Member();
-            $xfer += $this->success->read($input);
+          if ($ftype == TType::STRING) {
+            $xfer += $input->readString($this->success);
           } else {
             $xfer += $input->skip($ftype);
           }
@@ -258,11 +256,8 @@ class upName_EditName_result {
     $xfer = 0;
     $xfer += $output->writeStructBegin('upName_EditName_result');
     if ($this->success !== null) {
-      if (!is_object($this->success)) {
-        throw new TProtocolException('Bad type in structure.', TProtocolException::INVALID_DATA);
-      }
-      $xfer += $output->writeFieldBegin('success', TType::STRUCT, 0);
-      $xfer += $this->success->write($output);
+      $xfer += $output->writeFieldBegin('success', TType::STRING, 0);
+      $xfer += $output->writeString($this->success);
       $xfer += $output->writeFieldEnd();
     }
     $xfer += $output->writeFieldStop();

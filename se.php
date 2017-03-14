@@ -15,6 +15,8 @@ if (php_sapi_name() == 'cli') {
     ini_set('display_errors', 'stderr');
 }
 
+# php -S localhost:8000 & stunnel -d 443 -r 8080 se.php
+
 use hello\HelloWorldIf;
 use Thrift\Transport\TPhpStream;
 use Thrift\Protocol\TBinaryProtocol;
@@ -31,7 +33,7 @@ header('Content-Type', 'application/x-thrift');
 if (php_sapi_name() == 'cli') {
     echo "\r\n";
 }
-
+#
 $handler = new HelloWorldHandler();
 $processor = new \hello\HelloWorldProcessor($handler);
 

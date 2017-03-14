@@ -1,14 +1,14 @@
 <?php
 namespace langzi;
 error_reporting(E_ALL);
-require_once __DIR__ . '/Thrift/ClassLoader/ThriftClassLoader.php';
+require_once  './../Thrift/ClassLoader/ThriftClassLoader.php';
 
 use Thrift\ClassLoader\ThriftClassLoader;
 
-$GEN_DIR = realpath(__DIR__.'/gen-php');
+$GEN_DIR = realpath('./../gen-php');
 
 $loader = new ThriftClassLoader();
-$loader->registerNamespace('Thrift', __DIR__);
+$loader->registerNamespace('Thrift', './../');
 $loader->registerDefinition('langzi', $GEN_DIR);
 $loader->register();
 
@@ -19,7 +19,7 @@ use Thrift\Transport\TBufferedTransport;
 use Thrift\Exception\TException;
 
 try {
-$socket = new THttpClient('localhost', 9090, '/Fse.php');
+$socket = new THttpClient('localhost', 9085, '/Fse_obj.php');
 //   $socket = new THttpClient('localhost', 8090, '/thrift/penngo/PhpMulServer.php');
   $transport = new TBufferedTransport($socket);
   $protocol = new TBinaryProtocol($transport);

@@ -8,8 +8,10 @@ from thrift import Thrift
 from thrift.transport import TSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
+from thrift.protocol import TCompactProtocol
+# TBinaryProtocol：缺省简单的二进制序列化协议。
+# TCompactProtocol：高效的二进制序列化协议。
 sys.path.append('./../gen-py')
-
 
 from first import upAddress
 from first import upName
@@ -18,23 +20,24 @@ from first import upPwd
 
 # TMultiplexProtocol
 
-transport = TSocket.TSocket('localhost', 9099)
-#transport = TTransport.TBufferedTransport(transport)
-protocol = TBinaryProtocol.TBinaryProtocol(transport)
+transport = TSocket.TSocket('localhost', 9084)
+transport = TTransport.TBufferedTransport(transport)
+protocol = TCompactProtocol.TCompactProtocol(transport)
+#protocol = TBinaryProtocol.TBinaryProtocol(transport)
 
-transport.open()
+
 # 如果服务端使用TMultiplexedProcessor接收处理，客户端必须用TMultiplexedProtocol并且指定serviceName和服务端的一致
-upname = TMultiplexedProtocol(protocol, "upname")
-upaddress = TMultiplexedProtocol(protocol, "upaddress")
-uppwd = TMultiplexedProtocol(protocol, "uppwd")
-
+upname = TMultiplexedProtocol(protocol, "upName")
+upaddress = TMultiplexedProtocol(protocol, "upAddress")
+uppwd = TMultiplexedProtocol(protocol, "upPwd")
+transport.open()
 upname_client = upName.Client(upname)  # msg客户端
 upaddress_client = upAddress.Client(upaddress)  # user客户端
 uppwd_client = upPwd.Client(uppwd)  # user客户端
 
 print(upname_client.EditName(1, 'nzl123'))
-print(upaddress_client.EditAddress(1, 'address'))
-print(uppwd_client.EditPassword(1, 'password'))
+print(upaddress_client.EditAddress(12, 'address'))
+print(uppwd_client.EditPassword(11, 'password'))
 
 transport.close()
 

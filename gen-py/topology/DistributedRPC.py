@@ -16,44 +16,41 @@ from thrift.transport import TTransport
 
 
 class Iface(object):
-
-    def EditName(self, id, name):
+    def execute(self, functionName, funcArgs):
         """
         Parameters:
-         - id
-         - name
+         - functionName
+         - funcArgs
         """
         pass
 
 
 class Client(Iface):
-
     def __init__(self, iprot, oprot=None):
         self._iprot = self._oprot = iprot
         if oprot is not None:
             self._oprot = oprot
         self._seqid = 0
 
-    def EditName(self, id, name):
+    def execute(self, functionName, funcArgs):
         """
         Parameters:
-         - id
-         - name
+         - functionName
+         - funcArgs
         """
-        self.send_EditName(id, name)
-        return self.recv_EditName()
+        self.send_execute(functionName, funcArgs)
+        return self.recv_execute()
 
-    def send_EditName(self, id, name):
-        self._oprot.writeMessageBegin(
-            'EditName', TMessageType.CALL, self._seqid)
-        args = EditName_args()
-        args.id = id
-        args.name = name
+    def send_execute(self, functionName, funcArgs):
+        self._oprot.writeMessageBegin('execute', TMessageType.CALL, self._seqid)
+        args = execute_args()
+        args.functionName = functionName
+        args.funcArgs = funcArgs
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
 
-    def recv_EditName(self):
+    def recv_execute(self):
         iprot = self._iprot
         (fname, mtype, rseqid) = iprot.readMessageBegin()
         if mtype == TMessageType.EXCEPTION:
@@ -61,29 +58,30 @@ class Client(Iface):
             x.read(iprot)
             iprot.readMessageEnd()
             raise x
-        result = EditName_result()
+        result = execute_result()
         result.read(iprot)
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
-        raise TApplicationException(
-            TApplicationException.MISSING_RESULT, "EditName failed: unknown result")
+        if result.e is not None:
+            raise result.e
+        if result.aze is not None:
+            raise result.aze
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "execute failed: unknown result")
 
 
 class Processor(Iface, TProcessor):
-
     def __init__(self, handler):
         self._handler = handler
         self._processMap = {}
-        self._processMap["EditName"] = Processor.process_EditName
+        self._processMap["execute"] = Processor.process_execute
 
     def process(self, iprot, oprot):
         (name, type, seqid) = iprot.readMessageBegin()
         if name not in self._processMap:
             iprot.skip(TType.STRUCT)
             iprot.readMessageEnd()
-            x = TApplicationException(
-                TApplicationException.UNKNOWN_METHOD, 'Unknown function %s' % (name))
+            x = TApplicationException(TApplicationException.UNKNOWN_METHOD, 'Unknown function %s' % (name))
             oprot.writeMessageBegin(name, TMessageType.EXCEPTION, seqid)
             x.write(oprot)
             oprot.writeMessageEnd()
@@ -93,22 +91,27 @@ class Processor(Iface, TProcessor):
             self._processMap[name](self, seqid, iprot, oprot)
         return True
 
-    def process_EditName(self, seqid, iprot, oprot):
-        args = EditName_args()
+    def process_execute(self, seqid, iprot, oprot):
+        args = execute_args()
         args.read(iprot)
         iprot.readMessageEnd()
-        result = EditName_result()
+        result = execute_result()
         try:
-            result.success = self._handler.EditName(args.id, args.name)
+            result.success = self._handler.execute(args.functionName, args.funcArgs)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
+        except DRPCExecutionException as e:
+            msg_type = TMessageType.REPLY
+            result.e = e
+        except AuthorizationException as aze:
+            msg_type = TMessageType.REPLY
+            result.aze = aze
         except Exception as ex:
             msg_type = TMessageType.EXCEPTION
             logging.exception(ex)
-            result = TApplicationException(
-                TApplicationException.INTERNAL_ERROR, 'Internal error')
-        oprot.writeMessageBegin("EditName", msg_type, seqid)
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("execute", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -116,23 +119,22 @@ class Processor(Iface, TProcessor):
 # HELPER FUNCTIONS AND STRUCTURES
 
 
-class EditName_args(object):
-
+class execute_args(object):
     """
     Attributes:
-     - id
-     - name
+     - functionName
+     - funcArgs
     """
 
     thrift_spec = (
         None,  # 0
-        (1, TType.I64, 'id', None, None, ),  # 1
-        (2, TType.STRING, 'name', 'UTF8', None, ),  # 2
+        (1, TType.STRING, 'functionName', 'UTF8', None, ),  # 1
+        (2, TType.STRING, 'funcArgs', 'UTF8', None, ),  # 2
     )
 
-    def __init__(self, id=None, name=None,):
-        self.id = id
-        self.name = name
+    def __init__(self, functionName=None, funcArgs=None,):
+        self.functionName = functionName
+        self.funcArgs = funcArgs
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -144,14 +146,13 @@ class EditName_args(object):
             if ftype == TType.STOP:
                 break
             if fid == 1:
-                if ftype == TType.I64:
-                    self.id = iprot.readI64()
+                if ftype == TType.STRING:
+                    self.functionName = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.name = iprot.readString().decode(
-                        'utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.funcArgs = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -161,18 +162,16 @@ class EditName_args(object):
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(oprot._fast_encode(
-                self, (self.__class__, self.thrift_spec)))
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
-        oprot.writeStructBegin('EditName_args')
-        if self.id is not None:
-            oprot.writeFieldBegin('id', TType.I64, 1)
-            oprot.writeI64(self.id)
+        oprot.writeStructBegin('execute_args')
+        if self.functionName is not None:
+            oprot.writeFieldBegin('functionName', TType.STRING, 1)
+            oprot.writeString(self.functionName.encode('utf-8') if sys.version_info[0] == 2 else self.functionName)
             oprot.writeFieldEnd()
-        if self.name is not None:
-            oprot.writeFieldBegin('name', TType.STRING, 2)
-            oprot.writeString(self.name.encode('utf-8')
-                              if sys.version_info[0] == 2 else self.name)
+        if self.funcArgs is not None:
+            oprot.writeFieldBegin('funcArgs', TType.STRING, 2)
+            oprot.writeString(self.funcArgs.encode('utf-8') if sys.version_info[0] == 2 else self.funcArgs)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -192,19 +191,24 @@ class EditName_args(object):
         return not (self == other)
 
 
-class EditName_result(object):
-
+class execute_result(object):
     """
     Attributes:
      - success
+     - e
+     - aze
     """
 
     thrift_spec = (
         (0, TType.STRING, 'success', 'UTF8', None, ),  # 0
+        (1, TType.STRUCT, 'e', (DRPCExecutionException, DRPCExecutionException.thrift_spec), None, ),  # 1
+        (2, TType.STRUCT, 'aze', (AuthorizationException, AuthorizationException.thrift_spec), None, ),  # 2
     )
 
-    def __init__(self, success=None,):
+    def __init__(self, success=None, e=None, aze=None,):
         self.success = success
+        self.e = e
+        self.aze = aze
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -217,8 +221,19 @@ class EditName_result(object):
                 break
             if fid == 0:
                 if ftype == TType.STRING:
-                    self.success = iprot.readString().decode(
-                        'utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.success = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.e = DRPCExecutionException()
+                    self.e.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRUCT:
+                    self.aze = AuthorizationException()
+                    self.aze.read(iprot)
                 else:
                     iprot.skip(ftype)
             else:
@@ -228,14 +243,20 @@ class EditName_result(object):
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(oprot._fast_encode(
-                self, (self.__class__, self.thrift_spec)))
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
-        oprot.writeStructBegin('EditName_result')
+        oprot.writeStructBegin('execute_result')
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.STRING, 0)
-            oprot.writeString(self.success.encode('utf-8')
-                              if sys.version_info[0] == 2 else self.success)
+            oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
+            oprot.writeFieldEnd()
+        if self.e is not None:
+            oprot.writeFieldBegin('e', TType.STRUCT, 1)
+            self.e.write(oprot)
+            oprot.writeFieldEnd()
+        if self.aze is not None:
+            oprot.writeFieldBegin('aze', TType.STRUCT, 2)
+            self.aze.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()

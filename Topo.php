@@ -21,16 +21,15 @@ use Thrift\Transport\THttpClient;
 use Thrift\Transport\TBufferedTransport;
 use Thrift\Exception\TException;
 
-use hello\HelloWorldClient;
-
+use topology\NimbusClient;
 try{
-    $socket = new THttpClient('127.0.0.1', 9090,'','https');
+    $socket = new THttpClient('localhost', 6627);
     $transport = new TBufferedTransport($socket, 1024,1024);
     $protocol = new TBinaryProtocol($transport);
-    $client = new \hello\HelloWorldClient($protocol);
+    $client = new \hello\NimbusClient($protocol);
 
     $transport->open();
-    $result = $client->sayHello();
+    $result = $client->submitTopology();
     echo $result;
     $transport->close();
 }catch (TException $e){

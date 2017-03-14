@@ -20,7 +20,7 @@ interface upAddressIf {
   /**
    * @param int $id
    * @param string $address
-   * @return \langzi\Member
+   * @return string
    */
   public function EditAddress($id, $address);
 }
@@ -196,7 +196,7 @@ class upAddress_EditAddress_result {
   static $_TSPEC;
 
   /**
-   * @var \langzi\Member
+   * @var string
    */
   public $success = null;
 
@@ -205,8 +205,7 @@ class upAddress_EditAddress_result {
       self::$_TSPEC = array(
         0 => array(
           'var' => 'success',
-          'type' => TType::STRUCT,
-          'class' => '\langzi\Member',
+          'type' => TType::STRING,
           ),
         );
     }
@@ -237,9 +236,8 @@ class upAddress_EditAddress_result {
       switch ($fid)
       {
         case 0:
-          if ($ftype == TType::STRUCT) {
-            $this->success = new \langzi\Member();
-            $xfer += $this->success->read($input);
+          if ($ftype == TType::STRING) {
+            $xfer += $input->readString($this->success);
           } else {
             $xfer += $input->skip($ftype);
           }
@@ -258,11 +256,8 @@ class upAddress_EditAddress_result {
     $xfer = 0;
     $xfer += $output->writeStructBegin('upAddress_EditAddress_result');
     if ($this->success !== null) {
-      if (!is_object($this->success)) {
-        throw new TProtocolException('Bad type in structure.', TProtocolException::INVALID_DATA);
-      }
-      $xfer += $output->writeFieldBegin('success', TType::STRUCT, 0);
-      $xfer += $this->success->write($output);
+      $xfer += $output->writeFieldBegin('success', TType::STRING, 0);
+      $xfer += $output->writeString($this->success);
       $xfer += $output->writeFieldEnd();
     }
     $xfer += $output->writeFieldStop();
